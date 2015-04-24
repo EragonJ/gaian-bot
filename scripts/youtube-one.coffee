@@ -9,7 +9,7 @@ module.exports = (robot) ->
     robot.http("http://gdata.youtube.com/feeds/api/videos")
       .query({
         orderBy: "relevance"
-        'max-results': 1
+        'max-results': 2
         alt: 'json'
         q: query
       })
@@ -21,7 +21,9 @@ module.exports = (robot) ->
           msg.send "No video results for \"#{query}\""
           return
 
-        video  = videos[0]
+        #XXX: Since the first video is always a video showing devicesupport info, we 
+        # would pick the 2nd one.
+        video  = videos[1]
         video.link.forEach (link) ->
           if link.rel is "alternate" and link.type is "text/html"
             msg.send link.href
