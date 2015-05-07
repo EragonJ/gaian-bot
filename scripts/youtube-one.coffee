@@ -6,25 +6,22 @@
 module.exports = (robot) ->
   robot.respond /(youtube1|yt1) (.*)/i, (msg) ->
     query = msg.match[2]
-    robot.http("http://gdata.youtube.com/feeds/api/videos")
+    robot.http("https://www.googleapis.com/youtube/v3/search")
       .query({
-        orderBy: "relevance"
-        'max-results': 2
-        alt: 'json'
-        q: query
+        part: "snippet"
+        order: "ViewCount",
+        maxResults: "1",
+        q: query,
+        key: "{USE-YOUR-KEY}"
       })
       .get() (err, res, body) ->
-        videos = JSON.parse(body)
-        videos = videos.feed.entry
+        videos = JSON.parse(body).items
 
         unless videos?
           msg.send "No video results for \"#{query}\""
           return
 
-        #XXX: Since the first video is always a video showing devicesupport info, we 
-        # would pick the 2nd one.
-        video  = videos[1]
-        video.link.forEach (link) ->
-          if link.rel is "alternate" and link.type is "text/html"
-            msg.send link.href
+        youtubeViewLink = "https://www.youtube.com/watch?v=";
 
+        video  = videos[0]
+        msg.send (youtubeViewLink + video.id.videoId)
